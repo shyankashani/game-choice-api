@@ -12,8 +12,8 @@ app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
 })
 
-app.get('/result/:players/:age/:duration/:curve', (req, res) => {
-  db.fetchGame(req.params.players, req.params.age, req.params.duration, req.params.curve)
+app.get('/result/:players/:age/:duration/:complexity', (req, res) => {
+  db.fetchGame(req.params.players, req.params.age, req.params.duration, req.params.complexity)
   .then(result => {
     res.send(result);
   })
