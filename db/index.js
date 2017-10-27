@@ -7,10 +7,9 @@ const connection = mysql.createConnection({
   database : 'gamechoice'
 })
 
-exports.fetchGame = (players, age, duration, curve) => {
-  console.log(players, age, duration, curve)
+exports.fetchGame = (players, age, duration, complexity) => {
   return new Promise ((resolve, reject) => {
-    connection.query(`SELECT * FROM games WHERE min_players <= ${players} <= max_players AND min_age = ${age} AND playing_time = ${duration} AND learning_curve = ${curve}`, (error, results) => {
+    connection.query(`SELECT * FROM games WHERE minPlayers <= ${players} AND ${players} <= maxPlayers AND age = ${age} AND duration = ${duration} AND complexity = ${complexity}`, (error, results) => {
       if (error) {
         console.log(error);
       } else {
