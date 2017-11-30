@@ -1,4 +1,4 @@
-let games = [
+const games = [
   {
     name: 'Exploding Kittens',
     description: 'Exploding Kittens is a kitty-powered version of Russian Roulette. Players take turns drawing cards until someone draws an exploding kitten and loses the game. The deck is made up of cards that let you avoid exploding by peeking at cards before you draw, forcing your opponent to draw multiple cards, or shuffling the deck.',
@@ -217,6 +217,17 @@ let games = [
   }
 ];
 
+const durations = {
+  0: { id: 0, text: 'Under 45 min' },
+  1: { id: 1, text: '45 to 90 min' },
+  2: { id: 2, text: 'Above 90 min' }
+}
+
+const complexities = {
+  0: { id: 0, text: 'Gentle' },
+  1: { id: 1, text: 'Medium' },
+  2: { id: 2, text: 'Brutal' }
+}
 
 const questions = {
   0: {
@@ -226,28 +237,7 @@ const questions = {
     value: null,
     min: null,
     max: null,
-    answers: {
-      0: {
-        id: 0,
-        text: '< 15 mins',
-        value: 'quick'
-      },
-      1: {
-        id: 1,
-        text: '15-45 min',
-        value: 'short'
-      },
-      2: {
-        id: 2,
-        text: '45-90 min',
-        value: 'medium'
-      },
-      3: {
-        id: 3,
-        text: '90 mins +',
-        value: 'long'
-      }
-    }
+    answers: durations
   },
   1: {
     id: 1,
@@ -256,23 +246,7 @@ const questions = {
     value: null,
     min: null,
     max: null,
-    answers: {
-      0: {
-        id: 0,
-        text: 'Gentle',
-        value: 'low'
-      },
-      1: {
-        id: 1,
-        text: 'Medium',
-        value: 'medium'
-      },
-      2: {
-        id: 2,
-        text: 'Brutal',
-        value: 'high'
-      }
-    }
+    answers: complexities
   },
   2: {
     id: 2,
@@ -285,7 +259,7 @@ const questions = {
   },
   3: {
     id: 3,
-    path: '/age',
+    path: '/minAge',
     text: 'How old is the youngest player?',
     value: null,
     min: 4,
@@ -293,3 +267,8 @@ const questions = {
     answers: null
   }
 }
+
+exports.games = games;
+exports.durations = durations;
+exports.complexities = complexities;
+exports.questions = questions;
