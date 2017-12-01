@@ -1,3 +1,54 @@
+const durations = {
+  0: { id: 0, text: 'Under 45 min' },
+  1: { id: 1, text: '45 to 90 min' },
+  2: { id: 2, text: 'Above 90 min' }
+}
+
+const complexities = {
+  0: { id: 0, text: 'Gentle' },
+  1: { id: 1, text: 'Medium' },
+  2: { id: 2, text: 'Brutal' }
+}
+
+const questions = {
+  0: {
+    id: 0,
+    criterion: 'duration',
+    text: 'How long a game do you want to play?',
+    answer: 2,
+    minAnswer: null,
+    maxAnswer: null,
+    answers: durations
+  },
+  1: {
+    id: 1,
+    criterion: 'complexity',
+    text: 'How steep should the learning curve be?',
+    answer: 2,
+    minAnswer: null,
+    maxAnswer: null,
+    answers: complexities
+  },
+  2: {
+    id: 2,
+    criterion: 'players',
+    text: 'How many people will be playing?',
+    answer: 2,
+    minAnswer: 2,
+    maxAnswer: 12,
+    answers: null
+  },
+  3: {
+    id: 3,
+    criterion: 'minAge',
+    text: 'How old is the youngest player?',
+    answer: 18,
+    minAnswer: 4,
+    maxAnswer: 18,
+    answers: null
+  }
+}
+
 const games = [
   {
     name: 'Exploding Kittens',
@@ -193,7 +244,7 @@ const games = [
   },
   {
     name: 'Star Wars: Rebellion',
-    description: 'Experience the Galactic Civil War like never before. In Rebellion, you control the entire Galactic Empire or the fledgling Rebel Alliance. You must command starships, account for troop movements, and rally systems to your cause. Given the differences between the Empire and Rebel Alliance, each side has different win conditions, and you will need to adjust your play style depending on who you represent:',
+    description: 'Experience the Galactic Civil War like never before. In Rebellion, you control the entire Galactic Empire or the fledgling Rebel Alliance. You must command starships, account for troop movements, and rally systems to your cause. Given the differences between the Empire and Rebel Alliance, each side has different win conditions, and you will need to adjust your play style depending on who you represent.',
     imageURL: 'https://cf.geekdo-images.com/vDtvYEKdl_H5hPSj7_CDKs43lyc=/fit-in/1200x630/pic2737530.png',
     minPlayers: 2,
     maxPlayers: 4,
@@ -216,57 +267,6 @@ const games = [
     category: 'Party'
   }
 ];
-
-const durations = {
-  0: { id: 0, text: 'Under 45 min' },
-  1: { id: 1, text: '45 to 90 min' },
-  2: { id: 2, text: 'Above 90 min' }
-}
-
-const complexities = {
-  0: { id: 0, text: 'Gentle' },
-  1: { id: 1, text: 'Medium' },
-  2: { id: 2, text: 'Brutal' }
-}
-
-const questions = {
-  0: {
-    id: 0,
-    path: '/duration',
-    text: 'How long a game do you want to play?',
-    value: null,
-    min: null,
-    max: null,
-    answers: durations
-  },
-  1: {
-    id: 1,
-    path: '/complexity',
-    text: 'How steep should the learning curve be?',
-    value: null,
-    min: null,
-    max: null,
-    answers: complexities
-  },
-  2: {
-    id: 2,
-    path: '/players',
-    text: 'How many people will be playing?',
-    value: null,
-    min: 2,
-    max: 12,
-    answers: null
-  },
-  3: {
-    id: 3,
-    path: '/minAge',
-    text: 'How old is the youngest player?',
-    value: null,
-    min: 4,
-    max: 18,
-    answers: null
-  }
-}
 
 exports.games = games;
 exports.durations = durations;
