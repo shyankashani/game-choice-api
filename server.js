@@ -26,7 +26,7 @@ app.get('/result' + params, (req, res) => {
   let results = data.games.filter(game => {
     let durationTest = game.duration === Number(req.params.duration);
     let complexityTest = game.complexity === Number(req.params.complexity);
-    let playersTest = game.minPlayers <= Number(req.params.complexity) && Number(req.params.complexity) <= game.maxPlayers;
+    let playersTest = game.minPlayers <= Number(req.params.players) && Number(req.params.players) <= game.maxPlayers;
     let minAgeTest = game.minAge <= Number(req.params.minAge);
 
     return durationTest && complexityTest && playersTest && minAgeTest;
