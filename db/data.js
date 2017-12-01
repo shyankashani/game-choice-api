@@ -244,7 +244,7 @@ const games = [
   },
   {
     name: 'Star Wars: Rebellion',
-    description: 'Experience the Galactic Civil War like never before. In Rebellion, you control the entire Galactic Empire or the fledgling Rebel Alliance. You must command starships, account for troop movements, and rally systems to your cause. Given the differences between the Empire and Rebel Alliance, each side has different win conditions, and you will need to adjust your play style depending on who you represent:',
+    description: 'Experience the Galactic Civil War like never before. In Rebellion, you control the entire Galactic Empire or the fledgling Rebel Alliance. You must command starships, account for troop movements, and rally systems to your cause. Given the differences between the Empire and Rebel Alliance, each side has different win conditions, and you will need to adjust your play style depending on who you represent.',
     imageURL: 'https://cf.geekdo-images.com/vDtvYEKdl_H5hPSj7_CDKs43lyc=/fit-in/1200x630/pic2737530.png',
     minPlayers: 2,
     maxPlayers: 4,
