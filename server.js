@@ -2,6 +2,9 @@ const express = require('express');
 const data = require('./db/data.js');
 const app = express();
 const port = process.env.PORT || 3000;
+const { Client } = require('pg');
+const axios = require('axios');
+const parse = require('xml2js-es6-promise');
 
 let criteria = [];
 let params = '';
@@ -55,6 +58,32 @@ app.get('/result' + params, (req, res) => {
 
   res.send(result);
 });
+
+const client = new Client({
+  connectionString: 'postgres://eakyrenfgrudpz:2bec46785c01929a754a5ed574619d5746b4b195ec26b7ea4b06215f64f0b2eb@ec2-23-23-245-89.compute-1.amazonaws.com:5432/d44d7utch7fj0m',
+  ssl: true,
+});
+
+client.connect();
+
+app.get('/bgg', (req, res) => {
+
+  axios.get('http://www.boardgamegeek.com/xmlapi2/collection?username=crabogo&stats=1')
+  .then(result => parse(result.data))
+  .then(result => {
+    let games = result.items.item;
+    for (let i = 0; i < games.length; i++) {
+      let id = games[i].$.objectid;
+      axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ id + '&type=boardgame&stats=1')
+      .then(result => parse(result.data))
+      .then(result => {
+        console.log(result.items.item);
+        console.log('––––');
+      })
+    }
+  })
+});
+
 
 /*
 app.get('/result/:players/:age/:duration/:complexity', (req, res) => {

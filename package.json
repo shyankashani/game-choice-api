@@ -10,9 +10,12 @@
   "author": "shyan",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.17.1",
     "express": "^4.16.2",
     "mysql": "^2.15.0",
     "nodemon": "^1.12.1",
+    "pg": "^7.4.0",
+    "xml2js-es6-promise": "^1.1.1",
     "yarn": "^1.2.1"
   }
 }

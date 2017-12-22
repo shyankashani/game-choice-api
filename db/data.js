@@ -15,8 +15,8 @@ const playersAreUnder12 = {
   1: { id: 1, text: 'Yes, we have players under 12'}
 }
 
-const questions = {
-  0: {
+const questions = [
+  {
     id: 0,
     criterion: 'duration',
     text: 'How long a game do you want to play?',
@@ -25,7 +25,7 @@ const questions = {
     maxAnswer: null,
     answers: durations
   },
-  1: {
+  {
     id: 1,
     criterion: 'complexity',
     text: 'How steep should the learning curve be?',
@@ -34,7 +34,7 @@ const questions = {
     maxAnswer: null,
     answers: complexities
   },
-  2: {
+  {
     id: 2,
     criterion: 'players',
     text: 'How many people will be playing?',
@@ -43,7 +43,7 @@ const questions = {
     maxAnswer: 12,
     answers: null
   },
-  3: {
+  {
     id: 3,
     criterion: 'age',
     text: 'Will there be any players under 12?',
@@ -52,7 +52,7 @@ const questions = {
     maxAnswer: null,
     answers: playersAreUnder12
   }
-}
+];
 
 const games = [
   {
