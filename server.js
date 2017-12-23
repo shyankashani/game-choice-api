@@ -78,21 +78,62 @@ app.get('/bgg', (req, res) => {
       .then(result => parse(result.data))
       .then(result => {
         let game = result.items.item[0];
-        console.log('bgg_id: ', game.$.id);
-        console.log('name: ', game.name[0].$.value);
-        // console.log('description: ', game.description[0]);
-        console.log('yearpublished: ', Number(game.yearpublished[0].$.value));
-        console.log('image: ', game.image[0]),
-        console.log('thumbnail: ', game.thumbnail[0]),
-        console.log('minplayers: ', Number(game.minplayers[0].$.value));
-        console.log('maxplayers: ', Number(game.maxplayers[0].$.value));
-        console.log('playingtime: ', Number(game.playingtime[0].$.value));
-        console.log('minplaytime: ', Number(game.minplaytime[0].$.value));
-        console.log('maxplaytime: ', Number(game.maxplaytime[0].$.value));
-        console.log('minage: ', Number(game.minage[0].$.value));
-        console.log('average: ', Number(game.statistics[0].ratings[0].average[0].$.value));
-        console.log('averageweight: ', Number(game.statistics[0].ratings[0].averageweight[0].$.value));
+
+        let bgg_id = Number(game.$.id);
+        console.log('bgg_id: ', bgg_id);
+
+        let name = game.name[0].$.value;
+        console.log('name: ', name);
+
+        let description = game.description[0];
+        console.log('description: ', game.description[0]);
+
+        let year_published = Number(game.yearpublished[0].$.value);
+        console.log('yearpublished: ', year_published);
+
+        let image = game.image[0];
+        console.log('image: ', image);
+
+        let thumbnail = game.thumbnail[0];
+        console.log('thumbnail: ', thumbnail);
+
+        let min_players = Number(game.minplayers[0].$.value);
+        console.log('minplayers: ', min_players);
+
+        let max_players = Number(game.maxplayers[0].$.value);
+        console.log('maxplayers: ', max_players);
+
+        let playing_time = Number(game.playingtime[0].$.value);
+        console.log('playingtime: ', playing_time);
+
+        let min_play_time = Number(game.minplaytime[0].$.value);
+        console.log('minplaytime: ', min_play_time);
+
+        let max_play_time = Number(game.maxplaytime[0].$.value);
+        console.log('maxplaytime: ', max_play_time);
+
+        let min_age = Number(game.minage[0].$.value);
+        console.log('minage: ', min_age);
+
+        let bgg_average_rating = Number(game.statistics[0].ratings[0].average[0].$.value);
+        console.log('average: ', bgg_average_rating);
+
+        let bgg_average_weight = Number(game.statistics[0].ratings[0].averageweight[0].$.value);
+        console.log('averageweight: ', bgg_average_weight);
+
         console.log('––––––––––––––––––––––––––––––––––––––––––––––');
+
+        let text = 'INSERT INTO games(bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)';
+
+        let values = [bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating];
+
+        client.query(text, values, (err, res) => {
+          if (err) {
+            throw err
+          } else {
+            console.log(res)
+          }
+        });
       })
     }
   })
