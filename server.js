@@ -77,8 +77,22 @@ app.get('/bgg', (req, res) => {
       axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ id + '&type=boardgame&stats=1')
       .then(result => parse(result.data))
       .then(result => {
-        console.log(result.items.item);
-        console.log('––––');
+        let game = result.items.item[0];
+        console.log('bgg_id: ', game.$.id);
+        console.log('name: ', game.name[0].$.value);
+        // console.log('description: ', game.description[0]);
+        console.log('yearpublished: ', Number(game.yearpublished[0].$.value));
+        console.log('image: ', game.image[0]),
+        console.log('thumbnail: ', game.thumbnail[0]),
+        console.log('minplayers: ', Number(game.minplayers[0].$.value));
+        console.log('maxplayers: ', Number(game.maxplayers[0].$.value));
+        console.log('playingtime: ', Number(game.playingtime[0].$.value));
+        console.log('minplaytime: ', Number(game.minplaytime[0].$.value));
+        console.log('maxplaytime: ', Number(game.maxplaytime[0].$.value));
+        console.log('minage: ', Number(game.minage[0].$.value));
+        console.log('average: ', Number(game.statistics[0].ratings[0].average[0].$.value));
+        console.log('averageweight: ', Number(game.statistics[0].ratings[0].averageweight[0].$.value));
+        console.log('––––––––––––––––––––––––––––––––––––––––––––––');
       })
     }
   })
