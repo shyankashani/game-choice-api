@@ -67,73 +67,49 @@ const client = new Client({
 client.connect();
 
 app.get('/bgg', async (req, res) => {
-  let gamesByUser = (await getGamesByUser('crabogo')).items.item;
-  
+  let games = (await getGames('victorypointcafe')).items.item;
+  processGames(games);
 });
 
-const getGamesByUser = async user => {
+const getGames = async user => {
   return parse((await axios.get('http://www.boardgamegeek.com/xmlapi2/collection?username=' + user + '&stats=1')).data);
 };
 
-const getAndWriteAllGamesInfo = async games => {
-  for (let game of games) {
-    console.log('game');
-    let gameInfo = await getSingleGameInfo(game.items.item);
-    console.log('gameInfo', gameInfo);
-  }
-}
-
 const getSingleGameInfo = async game => {
-  return await axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ game.$.objectid + '&type=boardgame&stats=1');
+  return parse((await axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ game.$.objectid + '&type=boardgame&stats=1')).data);
 }
 
-const requestAllGames = async (user) => {
-  const allGames = parse(await getAllGames(user));
-  return allGames;
-}
-
-const processAllGames = async (games) => {
-  for (const game of games) {
-    await requestGameInfo(game);
+const processGames = async games => {
+  for (let game of games) {
+    await delay(2000);
+    let info = (await getSingleGameInfo(game)).items.item[0];
+    let mssg = await writeGame(info);
+    console.log(mssg);
   }
-  console.log('success!');
-  return 'success!'
 }
 
-const requestGameInfo = async (game) => {
-  const gameInfo = parse(await getGameInfo(game));
-  let individualGameInfo = gameInfo.items.item[0];
-  let bgg_id = Number(individualGameInfo.$.id);
-  let name = individualGameInfo.name[0].$.value;
-  let description = individualGameInfo.description[0];
-  let year_published = Number(individualGameInfo.yearpublished[0].$.value);
-  let image = individualGameInfo.image[0];
-  let thumbnail = individualGameInfo.thumbnail[0];
-  let min_players = Number(individualGameInfo.minplayers[0].$.value);
-  let max_players = Number(individualGameInfo.maxplayers[0].$.value);
-  let playing_time = Number(individualGameInfo.playingtime[0].$.value);
-  let min_play_time = Number(individualGameInfo.minplaytime[0].$.value);
-  let max_play_time = Number(individualGameInfo.maxplaytime[0].$.value);
-  let min_age = Number(individualGameInfo.minage[0].$.value);
-  let bgg_average_rating = Number(individualGameInfo.statistics[0].ratings[0].average[0].$.value);
-  let bgg_average_weight = Number(individualGameInfo.statistics[0].ratings[0].averageweight[0].$.value);
+const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
+
+const writeGame = async game => {
+  let bgg_id = Number(game.$.id);
+  let name = game.name[0].$.value;
+  let description = game.description[0];
+  let year_published = Number(game.yearpublished[0].$.value);
+  let image = game.image[0];
+  let thumbnail = game.thumbnail[0];
+  let min_players = Number(game.minplayers[0].$.value);
+  let max_players = Number(game.maxplayers[0].$.value);
+  let playing_time = Number(game.playingtime[0].$.value);
+  let min_play_time = Number(game.minplaytime[0].$.value);
+  let max_play_time = Number(game.maxplaytime[0].$.value);
+  let min_age = Number(game.minage[0].$.value);
+  let bgg_average_rating = Number(game.statistics[0].ratings[0].average[0].$.value);
+  let bgg_average_weight = Number(game.statistics[0].ratings[0].averageweight[0].$.value);
 
   let text = 'INSERT INTO games(bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)';
 
   let values = [bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating];
 
-
-}
-
-
-const writeGameToDB = async (text, values)  => {
-  console.log (await client.query(text, values, (err, res) => {
-    if (err) {
-      throw err;
-    } else {
-      console.log(res);
-      return res;
-    }
-  }));
-  return 'done';
+  const res = await client.query(text, values);
+  return 'Attempted to write game ' + name;
 }
