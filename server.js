@@ -66,85 +66,74 @@ const client = new Client({
 
 client.connect();
 
-app.get('/bgg', (req, res) => {
+app.get('/bgg', async (req, res) => {
+  let gamesByUser = (await getGamesByUser('crabogo')).items.item;
+  
+});
 
-  axios.get('http://www.boardgamegeek.com/xmlapi2/collection?username=crabogo&stats=1')
-  .then(result => parse(result.data))
-  .then(result => {
-    let games = result.items.item;
-    for (let i = 0; i < games.length; i++) {
-      let id = games[i].$.objectid;
-      axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ id + '&type=boardgame&stats=1')
-      .then(result => parse(result.data))
-      .then(result => {
-        let game = result.items.item[0];
+const getGamesByUser = async user => {
+  return parse((await axios.get('http://www.boardgamegeek.com/xmlapi2/collection?username=' + user + '&stats=1')).data);
+};
 
-        let bgg_id = Number(game.$.id);
-        console.log('bgg_id: ', bgg_id);
+const getAndWriteAllGamesInfo = async games => {
+  for (let game of games) {
+    console.log('game');
+    let gameInfo = await getSingleGameInfo(game.items.item);
+    console.log('gameInfo', gameInfo);
+  }
+}
 
-        let name = game.name[0].$.value;
-        console.log('name: ', name);
+const getSingleGameInfo = async game => {
+  return await axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ game.$.objectid + '&type=boardgame&stats=1');
+}
 
-        let description = game.description[0];
-        console.log('description: ', game.description[0]);
+const requestAllGames = async (user) => {
+  const allGames = parse(await getAllGames(user));
+  return allGames;
+}
 
-        let year_published = Number(game.yearpublished[0].$.value);
-        console.log('yearpublished: ', year_published);
+const processAllGames = async (games) => {
+  for (const game of games) {
+    await requestGameInfo(game);
+  }
+  console.log('success!');
+  return 'success!'
+}
 
-        let image = game.image[0];
-        console.log('image: ', image);
+const requestGameInfo = async (game) => {
+  const gameInfo = parse(await getGameInfo(game));
+  let individualGameInfo = gameInfo.items.item[0];
+  let bgg_id = Number(individualGameInfo.$.id);
+  let name = individualGameInfo.name[0].$.value;
+  let description = individualGameInfo.description[0];
+  let year_published = Number(individualGameInfo.yearpublished[0].$.value);
+  let image = individualGameInfo.image[0];
+  let thumbnail = individualGameInfo.thumbnail[0];
+  let min_players = Number(individualGameInfo.minplayers[0].$.value);
+  let max_players = Number(individualGameInfo.maxplayers[0].$.value);
+  let playing_time = Number(individualGameInfo.playingtime[0].$.value);
+  let min_play_time = Number(individualGameInfo.minplaytime[0].$.value);
+  let max_play_time = Number(individualGameInfo.maxplaytime[0].$.value);
+  let min_age = Number(individualGameInfo.minage[0].$.value);
+  let bgg_average_rating = Number(individualGameInfo.statistics[0].ratings[0].average[0].$.value);
+  let bgg_average_weight = Number(individualGameInfo.statistics[0].ratings[0].averageweight[0].$.value);
 
-        let thumbnail = game.thumbnail[0];
-        console.log('thumbnail: ', thumbnail);
+  let text = 'INSERT INTO games(bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)';
 
-        let min_players = Number(game.minplayers[0].$.value);
-        console.log('minplayers: ', min_players);
+  let values = [bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating];
 
-        let max_players = Number(game.maxplayers[0].$.value);
-        console.log('maxplayers: ', max_players);
 
-        let playing_time = Number(game.playingtime[0].$.value);
-        console.log('playingtime: ', playing_time);
+}
 
-        let min_play_time = Number(game.minplaytime[0].$.value);
-        console.log('minplaytime: ', min_play_time);
 
-        let max_play_time = Number(game.maxplaytime[0].$.value);
-        console.log('maxplaytime: ', max_play_time);
-
-        let min_age = Number(game.minage[0].$.value);
-        console.log('minage: ', min_age);
-
-        let bgg_average_rating = Number(game.statistics[0].ratings[0].average[0].$.value);
-        console.log('average: ', bgg_average_rating);
-
-        let bgg_average_weight = Number(game.statistics[0].ratings[0].averageweight[0].$.value);
-        console.log('averageweight: ', bgg_average_weight);
-
-        console.log('––––––––––––––––––––––––––––––––––––––––––––––');
-
-        let text = 'INSERT INTO games(bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)';
-
-        let values = [bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating];
-
-        client.query(text, values, (err, res) => {
-          if (err) {
-            throw err
-          } else {
-            console.log(res)
-          }
-        });
-      })
+const writeGameToDB = async (text, values)  => {
+  console.log (await client.query(text, values, (err, res) => {
+    if (err) {
+      throw err;
+    } else {
+      console.log(res);
+      return res;
     }
-  })
-});
-
-
-/*
-app.get('/result/:players/:age/:duration/:complexity', (req, res) => {
-  db.fetchGame(req.params.players, req.params.age, req.params.duration, req.params.complexity)
-  .then(result => {
-    res.send(result);
-  });
-});
-*/
+  }));
+  return 'done';
+}
