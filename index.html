@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Request and write games</title>
+    <style></style>
+  </head>
+  <body>
+    <button class="go">
+      Go
+    </button>
+    <h1>
+      Activity
+    </h1>
+    <ol class='activity'>
+
+    </ol>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        $('.go').click(function(){
+          socket.emit('go');
+          return false;
+        });
+        socket.on('acquired', function(message) {
+          $('.activity').append($('<li>').text('Acquired ' + message))
+        });
+        socket.on('written', function(message) {
+          $('.activity').append($('<li>').text('Written ' + message))
+        });
+      });
+    </script>
+  </body>
+</html>
