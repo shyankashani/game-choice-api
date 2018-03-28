@@ -1,88 +1,66 @@
-const express = require('express');
-const data = require('./db/data.js');
+import express from 'express';
+import data from './db/data.js';
+import pg from 'pg';
+import axios from 'axios';
+import parse from 'xml2js-es6-promise';
+import _ from 'lodash';
+
 const app = express();
 const port = process.env.PORT || 3000;
-const { Client } = require('pg');
-const axios = require('axios');
-const parse = require('xml2js-es6-promise');
-const _ = require('lodash');
-let criteria = [];
-let params = '';
-for (let questionId in data.questions) {
-  criteria.push(data.questions[questionId].criterion);
-}
-for (let i = 0; i < criteria.length; i++) {
-  params += `/:${criteria[i]}`
-}
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   next();
 });
+
 app.listen(port, function () {
   console.log(`Example app listening on port ${port}!`)
 });
-app.get('/questions', (req, res) => {
-  res.send(data.questions);
-});
-app.get('/result' + params, (req, res) => {
 
-  let duration = Number(req.params.duration);
-  let complexity = Number(req.params.complexity);
-  let players = Number(req.params.players);
-  let playersAreUnder12 = Number(req.params.playersAreUnder12);
-
-  let results = [];
-
-  for (let i = 0; i < data.games.length; i++) {
-    let game = data.games[i];
-    let test0 = game.duration === duration;
-    let test1 = game.complexity === complexity;
-    let test2 = game.players[0] <= players && players <= game.players[1];
-    let test3 = true;
-    if (playersAreUnder12) {
-      test3 = game.playersAreUnder12 === playersAreUnder12;
-    }
-    if (test0 && test1 && test2 && test3) {
-      results.push(game);
-    }
-  }
-
-  let randomIndex = Math.floor(Math.random() * results.length);
-  let result = results[randomIndex];
-
-  res.send(result);
-});
-const client = new Client({
+const client = new pg.Client({
   connectionString: 'postgres://eakyrenfgrudpz:2bec46785c01929a754a5ed574619d5746b4b195ec26b7ea4b06215f64f0b2eb@ec2-23-23-245-89.compute-1.amazonaws.com:5432/d44d7utch7fj0m',
   ssl: true,
 });
 client.connect();
 
+const someGameIds = _.slice(data.gameIds, 0, 20);
 
-
-app.get('/bgg', async (req, res) => {
-  let gameIds = (await getGames('victorypointcafe')).items.item.map(game => game.$.objectid);
-  let gameIdsSorted = _.chain(game).uniq().sort((a,b) => a-b);
-  
-  res.send(gameIdsSorted);
-  // let statsForAllGames = gameIds.map(async gameId => getStatsForOneGame(gameId));
+app.get('/bgg', (req, res) => {
+  Promise.all(someGameIds.map(getGameStats))
+  .then((result) => { res.send(result); });
 });
 
-const getGames = async username => {
-  return parse((await axios.get('http://www.boardgamegeek.com/xmlapi2/collection?username=' + username + '&stats=1')).data);
-};
-
-const getStatsForAllGames = async gameIds => {
-  for (let gameId of gameIds) {
-    let gameStats = (await getStatsForOneGame(gameId)).items.item[0];
-    let mssg = await writeGame(info);
-    console.log(mssg);
-  }
+const getGameStats = (gameId) => {
+  let query = 'http://www.boardgamegeek.com/xmlapi2/thing?id='+ gameId + '&type=boardgame&stats=1';
+  return axios.get(query).then(parseResult);
 }
 
-const getStatsForOneGame = async gameId => {
-  return parse((await axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ gameId + '&type=boardgame&stats=1')).data);
+const parseResult = (result) => {
+  console.log(result);
+  return parse(result.data);
 }
+
+// const getStatsForAllGames = (gameIds) => {
+//   return gameIds.map((gameId) => {
+//     return new Promise((resolve, reject) => {
+//       axios.
+//     })
+//   })
+// }
+
+// (gameId) => {
+//   axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ gameId + '&type=boardgame&stats=1')
+//   .then((result) => {
+//     return parse(result.data);
+//   })
+//   .then((result) => {
+//     return result.items.item
+//   })
+// }
+
+// const getStatsForOneGame = async gameId => {
+//   return parse((await ).data);
+// }
 
 const writeGame = async g => {
 

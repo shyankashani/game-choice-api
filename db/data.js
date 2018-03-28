@@ -279,3 +279,4 @@ exports.games = games;
 exports.durations = durations;
 exports.complexities = complexities;
 exports.questions = questions;
+exports.gameIds = gameIds;
