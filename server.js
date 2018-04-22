@@ -28,11 +28,34 @@ app.get('/', function(req, res, next) {
 })
 
 app.get('/games', function(req, res, next) {
-  client.query(`SELECT * FROM games WHERE to_tsvector(name) @@ to_tsquery('${req.query.name}')`)
+  client.query(`SELECT
+    games.id,
+    games.name,
+    inventory.location,
+    inventory.color_id,
+    inventory.category_id
+    FROM games, inventory
+    WHERE to_tsvector(games.name) @@ to_tsquery('${req.query.name}')
+    AND games.id = inventory.game_id`
+  )
   .then(function(result) {
-    res.send(result);
-    console.log('result', result);
+    const resultsArray = result.rows.map(row => {
+      return {
+        gameId: row.id,
+        name: row.name,
+        location: row.location,
+        colorId: row.color_id,
+        categoryId: row.category_id
+      }
+    })
+
+    res.send(resultsArray);
+    console.log('resultsArray', resultsArray);
   })
+});
+
+app.post('/inventory', function(req, res, next) {
+  client.query(`SELECT * `)
 });
 
 http.listen(3000, function() {
