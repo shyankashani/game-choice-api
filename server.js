@@ -16,38 +16,54 @@ const client = new pg.Client({
 
 client.connect();
 
-app.get('/', function(req, res) {
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+app.get('/', function(req, res, next) {
+  console.log('gameIds.length', gameIds.length);
   res.sendFile(__dirname + '/index.html');
 })
+
+app.get('/games', function(req, res, next) {
+  client.query(`SELECT * FROM games WHERE to_tsvector(name) @@ to_tsquery('${req.query.name}')`)
+  .then(function(result) {
+    res.send(result);
+    console.log('result', result);
+  })
+});
 
 http.listen(3000, function() {
   console.log(`Example app listening on port 3000`)
 });
 
-io.on('connection', function(socket){
-  socket.on('go', function(){
-    Promise.mapSeries(
-      gameIds,
-      function(gameId) {
-        return Promise.delay(4000)
-          .then(function() {
-            axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ gameId.toString() + '&type=boardgame&stats=1')
-            .then(parseResult)
-            .then(prepareResult)
-            .then((result) => {
-              io.emit('acquired', result.values[1]);
-              return Promise.resolve(result);
-            })
-            .then(writeResult)
-            .then((result) => {
-              io.emit('written', result);
-              return Promise.resolve(result);
-            })
-        })
-      }
-    );
-  });
-});
+// io.on('connection', function(socket){
+//   socket.on('go', function(){
+//     Promise.mapSeries(
+//       gameIds,
+//       function(gameId) {
+//         return Promise.delay(4000)
+//           .then(function() {
+//             axios.get('http://www.boardgamegeek.com/xmlapi2/thing?id='+ gameId.toString() + '&type=boardgame&stats=1')
+//             .then(parseResult)
+//             .then(prepareResult)
+//             .then((result) => {
+//               io.emit('acquired', result.values[1]);
+//               return Promise.resolve(result);
+//             })
+//             .then(writeResult)
+//             .then((result) => {
+//               console.log(result);
+//               io.emit('written', result.rows[0].name);
+//               return Promise.resolve(result);
+//             })
+//         })
+//       }
+//     );
+//   });
+// });
 
 function parseResult(result) {
   return parse(result.data);
@@ -75,7 +91,7 @@ function prepareResult(result) {
   }
 
   let preparedResult = {
-    text: 'INSERT INTO games(bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)',
+    text: 'INSERT INTO games(bgg_id, name, description, year_published, min_players, max_players, playing_time, min_play_time, max_play_time, min_age, thumbnail, image, bgg_average_weight, bgg_average_rating) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING name',
     values: [valuesObj.bgg_id, valuesObj.name, valuesObj.description, valuesObj.year_published, valuesObj.min_players, valuesObj.max_players, valuesObj.playing_time, valuesObj.min_play_time, valuesObj.max_play_time, valuesObj.min_age, valuesObj.thumbnail, valuesObj.image, valuesObj.bgg_average_weight, valuesObj.bgg_average_rating]
   };
 
@@ -85,12 +101,6 @@ function prepareResult(result) {
 function writeResult(result) {
   return client.query(result.text, result.values);
 }
-// .then(parseResult)
-// .then(prepareResult)
-// .then(writeResult)
-// .then(logResult)
-// .catch(catchError)}
-
 
 function logResult(result) {
   io.emit('went')
