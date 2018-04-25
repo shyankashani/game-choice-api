@@ -47,12 +47,40 @@ app.get('/games', function(req, res, next) {
         colorId: row.color_id,
         categoryId: row.category_id
       }
-    })
+    });
 
     res.send(resultsArray);
-    console.log('resultsArray', resultsArray);
   })
 });
+
+app.get('/colors', function(req, res, next) {
+  client.query(`SELECT * FROM colors`)
+  .then(function(result) {
+    const resultsArray = result.rows.map(row => {
+      return {
+        colorId: row.id,
+        name: row.name,
+        hex: row.hex
+      }
+    });
+
+    res.send(resultsArray);
+  })
+});
+
+app.get('/categories', function(req, res, next) {
+  client.query(`SELECT * FROM categories`)
+  .then(function(result) {
+    const resultsArray = result.rows.map(row => {
+      return {
+        categoryId: row.id,
+        name: row.name
+      }
+    });
+
+    res.send(resultsArray);
+  });
+})
 
 app.post('/inventory', function(req, res, next) {
   client.query(`SELECT * `)
