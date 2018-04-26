@@ -83,7 +83,33 @@ app.get('/categories', function(req, res, next) {
 })
 
 app.post('/inventory', function(req, res, next) {
-  client.query(`SELECT * `)
+  console.log(req.query);
+  client.query(`UPDATE inventory SET
+    location = '${req.query.location}',
+    color_id = ${req.query.colorId},
+    category_id = ${req.query.categoryId}
+    WHERE
+    id = ${req.query.inventoryId} AND
+    game_id = ${req.query.gameId}
+  `)
+  .then(function(result) {
+    res.send(result);
+  })
+});
+
+app.get('/inventory', function(req, res, next) {
+  client.query(`SELECT * FROM inventory WHERE inventory.game_id = '${req.query.gameId}'`)
+  .then(function(result) {
+    const resultsObject = {
+      inventoryId: result.rows[0].id,
+      gameId: result.rows[0].game_id,
+      location: result.rows[0].location,
+      colorId: result.rows[0].color_id,
+      categoryId: result.rows[0].category_id
+    }
+
+    res.send(resultsObject);
+  })
 });
 
 http.listen(3000, function() {
