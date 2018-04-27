@@ -83,11 +83,13 @@ app.get('/categories', function(req, res, next) {
 })
 
 app.post('/inventory', function(req, res, next) {
-  console.log(req.query);
+  const location = req.query.location === 'null' ? 'DEFAULT' : `'${req.query.location}'`;
+  const colorId = req.query.colorId === 'null' ? 'DEFAULT' : `'${req.query.colorId}'`;
+  const categoryId = req.query.categoryId === 'null' ? 'DEFAULT' : `'${req.query.categoryId}'`;
   client.query(`UPDATE inventory SET
-    location = '${req.query.location}',
-    color_id = ${req.query.colorId},
-    category_id = ${req.query.categoryId}
+    location = ${location},
+    color_id = ${colorId},
+    category_id = ${categoryId}
     WHERE
     id = ${req.query.inventoryId} AND
     game_id = ${req.query.gameId}
