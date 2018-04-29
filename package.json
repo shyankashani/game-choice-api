@@ -5,12 +5,14 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js --exec babel-node --presets env"
   },
   "author": "shyan",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.17.1",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "bluebird": "^3.5.1",
     "express": "^4.16.2",
     "lodash": "^4.17.5",
