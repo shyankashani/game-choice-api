@@ -15,6 +15,7 @@
     "babel-preset-env": "^1.6.1",
     "bluebird": "^3.5.1",
     "express": "^4.16.2",
+    "knex": "^0.14.6",
     "lodash": "^4.17.5",
     "mysql": "^2.15.0",
     "nodemon": "^1.12.1",
