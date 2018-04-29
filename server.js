@@ -16,6 +16,8 @@ const client = new pg.Client({
 
 client.connect();
 
+app.set('port', (process.env.PORT || 3000))
+
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -114,8 +116,8 @@ app.get('/inventory', function(req, res, next) {
   })
 });
 
-http.listen(process.env.PORT || 3000, function() {
-  console.log(`Example app listening on port ${process.env.PORT || 3000}`)
+http.listen(app.get('port'), function() {
+  console.log(`Example app listening on port ${app.get('port')}`)
 });
 
 // io.on('connection', function(socket){
