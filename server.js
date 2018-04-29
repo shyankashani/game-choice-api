@@ -1,13 +1,13 @@
-import { gameIds } from './db/data.js';
-import pg from 'pg';
-import axios from 'axios';
-import parse from 'xml2js-es6-promise';
-import _ from 'lodash';
-import Promise from 'bluebird';
+const gameIds = require('./db/data.js').gameIds;
+const pg = require('pg');
+const axios = require('axios');
+const parse = require('xml2js-es6-promise');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 const app = require('express')();
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
+// const io = require('socket.io')(http);
 
 const client = new pg.Client({
   connectionString: 'postgres://eakyrenfgrudpz:2bec46785c01929a754a5ed574619d5746b4b195ec26b7ea4b06215f64f0b2eb@ec2-23-23-245-89.compute-1.amazonaws.com:5432/d44d7utch7fj0m',
@@ -183,9 +183,9 @@ function writeResult(result) {
   return client.query(result.text, result.values);
 }
 
-function logResult(result) {
-  io.emit('went')
-}
-function catchError(error) {
-  io.emit('went')
-}
+// function logResult(result) {
+//   io.emit('went')
+// }
+// function catchError(error) {
+//   io.emit('went')
+// }
