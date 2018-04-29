@@ -114,8 +114,8 @@ app.get('/inventory', function(req, res, next) {
   })
 });
 
-http.listen(3000, function() {
-  console.log(`Example app listening on port 3000`)
+http.listen(process.env.PORT || 3000, function() {
+  console.log(`Example app listening on port ${process.env.PORT || 3000}`)
 });
 
 // io.on('connection', function(socket){
