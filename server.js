@@ -5,14 +5,27 @@ const parse = require('xml2js-es6-promise');
 const _ = require('lodash');
 const Promise = require('bluebird');
 
+const PG_CONNECTION = 'postgres://eakyrenfgrudpz:2bec46785c01929a754a5ed574619d5746b4b195ec26b7ea4b06215f64f0b2eb@ec2-23-23-245-89.compute-1.amazonaws.com:5432/d44d7utch7fj0m';
+
 const app = require('express')();
 const http = require('http').Server(app);
-// const io = require('socket.io')(http);
 
-const client = new pg.Client({
-  connectionString: 'postgres://eakyrenfgrudpz:2bec46785c01929a754a5ed574619d5746b4b195ec26b7ea4b06215f64f0b2eb@ec2-23-23-245-89.compute-1.amazonaws.com:5432/d44d7utch7fj0m',
-  ssl: true,
-});
+const { Model } = require('objection');
+const Knex = require('knex');
+
+const knex = Knex({
+  client: 'pg',
+  connection: PG_CONNECTION
+})
+
+Model.knex(knex);
+
+class Game extends extends Model {
+  static get tableName() {
+    return 'games';
+  }
+}
+
 
 client.connect();
 

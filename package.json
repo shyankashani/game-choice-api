@@ -19,6 +19,7 @@
     "lodash": "^4.17.5",
     "mysql": "^2.15.0",
     "nodemon": "^1.12.1",
+    "objection": "^1.1.7",
     "pg": "^7.4.0",
     "xml2js-es6-promise": "^1.1.1",
     "yarn": "^1.2.1"
