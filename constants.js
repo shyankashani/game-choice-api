@@ -1,8 +1,9 @@
 // https://spacetelescope.github.io/understanding-json-schema/reference/numeric.html
 
-exports.CONSTANTS = {
+module.exports = {
   PROPERTY_TYPES: {
     INTEGER:  { type: 'integer'},
-    STRING:   { type: 'string'}
+    STRING:   { type: 'string'},
+    URI: { type: 'string', format: 'uri' }
   }
 }

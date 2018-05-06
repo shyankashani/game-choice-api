@@ -5,13 +5,20 @@ const parse = require('xml2js-es6-promise');
 const _ = require('lodash');
 const Promise = require('bluebird');
 
-const PG_CONNECTION = 'postgres://eakyrenfgrudpz:2bec46785c01929a754a5ed574619d5746b4b195ec26b7ea4b06215f64f0b2eb@ec2-23-23-245-89.compute-1.amazonaws.com:5432/d44d7utch7fj0m';
+const PG_CONNECTION = 'postgres://eakyrenfgrudpz:2bec46785c01929a754a5ed574619d5746b4b195ec26b7ea4b06215f64f0b2eb@ec2-23-23-245-89.compute-1.amazonaws.com:5432/d44d7utch7fj0m?ssl=true';
+const client = new pg.Client({
+  connectionString: 'postgres://eakyrenfgrudpz:2bec46785c01929a754a5ed574619d5746b4b195ec26b7ea4b06215f64f0b2eb@ec2-23-23-245-89.compute-1.amazonaws.com:5432/d44d7utch7fj0m',
+  ssl: true,
+});
 
 const app = require('express')();
 const http = require('http').Server(app);
 
-const { Model } = require('objection');
+const { Model, raw } = require('objection');
 const Knex = require('knex');
+const Color = require('./models/Color');
+const Category = require('./models/Category');
+const Inventory = require('./models/Inventory');
 
 const knex = Knex({
   client: 'pg',
@@ -19,13 +26,6 @@ const knex = Knex({
 })
 
 Model.knex(knex);
-
-class Game extends extends Model {
-  static get tableName() {
-    return 'games';
-  }
-}
-
 
 client.connect();
 
@@ -68,33 +68,22 @@ app.get('/games', function(req, res, next) {
   })
 });
 
-app.get('/colors', function(req, res, next) {
-  client.query(`SELECT * FROM colors`)
-  .then(function(result) {
-    const resultsArray = result.rows.map(row => {
-      return {
-        colorId: row.id,
-        name: row.name,
-        hex: row.hex
-      }
-    });
+app.get('/colors', async (req, res, next) => {
+  const colors = await Color
+    .query()
+    .select('colors.*')
+    .from('colors')
 
-    res.send(resultsArray);
-  })
+  res.send(colors);
 });
 
-app.get('/categories', function(req, res, next) {
-  client.query(`SELECT * FROM categories`)
-  .then(function(result) {
-    const resultsArray = result.rows.map(row => {
-      return {
-        categoryId: row.id,
-        name: row.name
-      }
-    });
+app.get('/categories', async (req, res, next) => {
+  const categories = await Category
+    .query()
+    .select('categories.*')
+    .from('categories')
 
-    res.send(resultsArray);
-  });
+  res.send(categories)
 })
 
 app.post('/inventory', function(req, res, next) {
@@ -114,19 +103,15 @@ app.post('/inventory', function(req, res, next) {
   })
 });
 
-app.get('/inventory', function(req, res, next) {
-  client.query(`SELECT * FROM inventory WHERE inventory.game_id = '${req.query.gameId}'`)
-  .then(function(result) {
-    const resultsObject = {
-      inventoryId: result.rows[0].id,
-      gameId: result.rows[0].game_id,
-      location: result.rows[0].location,
-      colorId: result.rows[0].color_id,
-      categoryId: result.rows[0].category_id
-    }
+app.get('/inventory', async (req, res, next) => {
+  const inventory = await Inventory
+    .query()
+    .joinRelation('color')
+    .select('inventory.*')
+    .from('inventory')
+    .where('game_id', '=', req.query.gameId)
 
-    res.send(resultsObject);
-  })
+  res.send(inventory);
 });
 
 http.listen(app.get('port'), function() {
