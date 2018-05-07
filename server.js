@@ -16,6 +16,7 @@ const http = require('http').Server(app);
 
 const { Model, raw } = require('objection');
 const Knex = require('knex');
+const Game = require('./models/Game');
 const Color = require('./models/Color');
 const Category = require('./models/Category');
 const Inventory = require('./models/Inventory');
@@ -42,30 +43,14 @@ app.get('/', function(req, res, next) {
   res.sendFile(__dirname + '/index.html');
 })
 
-app.get('/games', function(req, res, next) {
-  client.query(`SELECT
-    games.id,
-    games.name,
-    inventory.location,
-    inventory.color_id,
-    inventory.category_id
-    FROM games, inventory
-    WHERE to_tsvector(games.name) @@ to_tsquery('${req.query.name}')
-    AND games.id = inventory.game_id`
-  )
-  .then(function(result) {
-    const resultsArray = result.rows.map(row => {
-      return {
-        gameId: row.id,
-        name: row.name,
-        location: row.location,
-        colorId: row.color_id,
-        categoryId: row.category_id
-      }
-    });
+app.get('/games', async (req, res, next) => {
+  const games = await Game
+    .query()
+    .select('games.*')
+    .from('games')
+    .where(raw(`to_tsvector(games.name) @@ to_tsquery('${req.query.name}')`))
 
-    res.send(resultsArray);
-  })
+  res.send(games);
 });
 
 app.get('/colors', async (req, res, next) => {
@@ -86,27 +71,32 @@ app.get('/categories', async (req, res, next) => {
   res.send(categories)
 })
 
-app.post('/inventory', function(req, res, next) {
-  const location = req.query.location === 'null' ? 'DEFAULT' : `'${req.query.location}'`;
-  const colorId = req.query.colorId === 'null' ? 'DEFAULT' : `'${req.query.colorId}'`;
-  const categoryId = req.query.categoryId === 'null' ? 'DEFAULT' : `'${req.query.categoryId}'`;
-  client.query(`UPDATE inventory SET
-    location = ${location},
-    color_id = ${colorId},
-    category_id = ${categoryId}
-    WHERE
-    id = ${req.query.inventoryId} AND
-    game_id = ${req.query.gameId}
-  `)
-  .then(function(result) {
-    res.send(result);
-  })
+app.post('/inventory', async (req, res, next) => {
+  const patches = {};
+
+  if (req.query.location !== 'null') {
+    patches.location = req.query.location;
+  }
+
+  if (req.query.colorId !== 'null') {
+    patches.color_id = Number(req.query.colorId);
+  }
+
+  if (req.query.categoryId !== 'null') {
+    patches.category_id = Number(req.query.categoryId);
+  }
+
+  const inventory = await Inventory
+    .query()
+    .patchAndFetchById(req.query.inventoryId, patches)
+    .where('id', '=', req.query.inventoryId)
+
+  res.send(inventory);
 });
 
 app.get('/inventory', async (req, res, next) => {
   const inventory = await Inventory
     .query()
-    .joinRelation('color')
     .select('inventory.*')
     .from('inventory')
     .where('game_id', '=', req.query.gameId)
