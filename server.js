@@ -23,31 +23,19 @@ app.use((req, res, next) => {
 });
 
 app.get('/games', async (req, res, next) => {
-  const games = await Game
-    .query()
-    .select('games.*')
-    .from('games')
+  const games = await Game.query().select('games.*').from('games')
     .where(raw(`to_tsvector(games.name) @@ to_tsquery('${req.query.name}')`))
-
   res.send(games);
 });
 
 app.get('/colors', async (req, res, next) => {
-  const colors = await Color
-    .query()
-    .select('colors.*')
-    .from('colors')
-
+  const colors = await Color.query().select('colors.*').from('colors')
   res.send(colors);
 });
 
 app.get('/categories', async (req, res, next) => {
-  const categories = await Category
-    .query()
-    .select('categories.*')
-    .from('categories')
-
-  res.send(categories)
+  const categories = await Category.query().select('categories.*').from('categories')
+  res.send(categories);
 })
 
 app.post('/inventory', async (req, res, next) => {
@@ -55,31 +43,22 @@ app.post('/inventory', async (req, res, next) => {
 
   if (req.query.location !== 'null') {
     patches.location = req.query.location;
-  }
-
-  if (req.query.colorId !== 'null') {
+  } if (req.query.colorId !== 'null') {
     patches.color_id = Number(req.query.colorId);
-  }
-
-  if (req.query.categoryId !== 'null') {
+  } if (req.query.categoryId !== 'null') {
     patches.category_id = Number(req.query.categoryId);
+  } if (req.query.notes !== 'null') {
+    patches.notes = req.query.notes;
   }
 
-  const inventory = await Inventory
-    .query()
-    .patchAndFetchById(req.query.inventoryId, patches)
+  const inventory = await Inventory.query().patchAndFetchById(req.query.inventoryId, patches)
     .where('id', '=', req.query.inventoryId)
-
   res.send(inventory);
 });
 
 app.get('/inventory', async (req, res, next) => {
-  const inventory = await Inventory
-    .query()
-    .select('inventory.*')
-    .from('inventory')
+  const inventory = await Inventory.query().select('inventory.*').from('inventory')
     .where('game_id', '=', req.query.gameId)
-
   res.send(inventory);
 });
 
