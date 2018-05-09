@@ -1,5 +1,8 @@
 const app = require('express')();
 const http = require('http').Server(app);
+const axios = require('axios');
+const parse = require('xml2js-es6-promise');
+const Promise = require('bluebird');
 
 const Knex = require('knex');
 const knex = Knex({ client: 'pg', connection: require('./constants').PG_CONNECTION });
@@ -61,6 +64,19 @@ app.get('/inventory', async (req, res, next) => {
     .where('game_id', '=', req.query.gameId)
   res.send(inventory);
 });
+
+app.get('/sync', (req, res, next) => {
+  axios.get(`http://www.boardgamegeek.com/xmlapi2/collection?username=crabogo&stats=1`)
+  .then(result => parse(result.data))
+  .then(result => result.items.item.map(game => game.$.objectid))
+  .then(result => {
+    Promise.mapSeries(result, id => {
+      return Promise.delay(4000)
+      .then(result => axios.get(`http://www.boardgamegeek.com/xmlapi2/thing?id=${id.toString()}&type=boardgame&stats=1`))
+      .then(result => parse(result.data))
+    })
+  })
+})
 
 http.listen(app.get('port'), () => {
   console.log(`Example app listening on port ${app.get('port')}`)
