@@ -72,8 +72,23 @@ app.get('/sync', (req, res, next) => {
   .then(result => {
     Promise.mapSeries(result, id => {
       return Promise.delay(4000)
-      .then(result => axios.get(`http://www.boardgamegeek.com/xmlapi2/thing?id=${id.toString()}&type=boardgame&stats=1`))
-      .then(result => parse(result.data))
+      .then(async result => {
+        const game = await Game.query().select('games.*').from('games')
+          .where('bgg_id', '=', id)
+        return game.length ? Promise.resolve(id) : Promise.reject(id);
+      })
+      .then(id => {
+        console.log(`Resolved with id ${id}`)
+      })
+      .catch(id => {
+        console.log(`Rejected with id ${id}`);
+        axios.get(`http://www.boardgamegeek.com/xmlapi2/thing?id=${id.toString()}&type=boardgame&stats=1`)
+        .then(result => {
+          console.log('result', result);
+        })
+      })
+      // .then(result => axios.get(`http://www.boardgamegeek.com/xmlapi2/thing?id=${id.toString()}&type=boardgame&stats=1`))
+      // .then(result => parse(result.data))
     })
   })
 })
