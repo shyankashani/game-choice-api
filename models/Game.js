@@ -1,6 +1,7 @@
 'use strict';
 
 const Model = require('objection').Model;
+const Inventory = require('./Inventory');
 const PROPERTY_TYPES = require('../constants.js').PROPERTY_TYPES;
 
 class Game extends Model {
@@ -36,18 +37,18 @@ class Game extends Model {
     }
   }
 
-  // static get relationMappings() {
-  //   return {
-  //     inventory: {
-  //       relation: Model.HasOneRelation,
-  //       modelClass: Inventory,
-  //       join: {
-  //         from: 'games.id',
-  //         to: 'inventory.game_id'
-  //       }
-  //     }
-  //   }
-  // }
+  static get relationMappings() {
+    return {
+      inventory: {
+        relation: Model.HasOneRelation,
+        modelClass: Inventory,
+        join: {
+          from: 'games.id',
+          to: 'inventory.game_id'
+        }
+      }
+    }
+  }
 }
 
 module.exports = Game;

@@ -31,10 +31,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/games', async (req, res, next) => {
-  const games = await Game.query().select('games.*').from('games')
+app.get('/inventory', async (req, res, next) => {
+  const inventory = await Inventory.query().select('*')
+    .join('games', 'games.id', 'inventory.game_id')
     .where(raw(`to_tsvector(games.name) @@ to_tsquery('${req.query.name}')`))
-  res.send(games);
+  res.send(inventory);
 });
 
 app.get('/colors', async (req, res, next) => {
@@ -62,12 +63,6 @@ app.post('/inventory', async (req, res, next) => {
 
   const inventory = await Inventory.query().patchAndFetchById(req.query.inventoryId, patches)
     .where('id', '=', req.query.inventoryId)
-  res.send(inventory);
-});
-
-app.get('/inventory', async (req, res, next) => {
-  const inventory = await Inventory.query().select('inventory.*').from('inventory')
-    .where('game_id', '=', req.query.gameId)
   res.send(inventory);
 });
 
