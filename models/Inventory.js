@@ -34,14 +34,14 @@ class Inventory extends Model {
 
   static get relationMappings() {
     return {
-      game: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Game,
-        join: {
-          from: 'inventory.game_id',
-          to: 'games.id'
-        }
-      },
+      // game: {
+      //   relation: Model.BelongsToOneRelation,
+      //   modelClass: Game,
+      //   join: {
+      //     from: 'inventory.game_id',
+      //     to: 'games.id'
+      //   }
+      // },
       organization: {
         relation: Model.BelongsToOneRelation,
         modelClass: Organization,
