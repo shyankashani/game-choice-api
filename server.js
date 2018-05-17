@@ -4,8 +4,8 @@ const axios = require('axios');
 const parse = require('xml2js-es6-promise');
 const Promise = require('bluebird');
 
-const Knex = require('knex');
-const knex = Knex({ client: 'pg', connection: require('./constants').PG_CONNECTION });
+const { development } = require('./knexfile.js');
+const knex = require('knex')(development);
 
 const { Model, raw } = require('objection');
 Model.knex(knex);
@@ -29,9 +29,16 @@ app.use((req, res, next) => {
 });
 
 app.get('/inventory', async (req, res, next) => {
-  const inventory = await Inventory.query().select('*')
-    .join('games', 'games.id', 'inventory.game_id')
-    .where(raw(`to_tsvector(games.name) @@ to_tsquery('${req.query.name}')`))
+  let inventory;
+
+  if (req.query.name) {
+    inventory = await Inventory.query().select('*')
+      .join('games', 'games.id', 'inventory.game_id')
+      .where(raw(`to_tsvector(games.name) @@ to_tsquery('${req.query.name}')`))
+  } else {
+    inventory = await Inventory.query().select('*')
+      .join('games', 'games.id', 'inventory.game_id')
+  }
   res.send(inventory);
 });
 
@@ -47,15 +54,18 @@ app.get('/categories', async (req, res, next) => {
 
 app.post('/inventory', async (req, res, next) => {
   const patches = {};
+  const q = req.query;
 
-  if (req.query.location !== 'null') {
-    patches.location = req.query.location;
-  } if (req.query.colorId !== 'null') {
-    patches.color_id = Number(req.query.colorId);
-  } if (req.query.categoryId !== 'null') {
-    patches.category_id = Number(req.query.categoryId);
-  } if (req.query.notes !== 'null') {
-    patches.notes = req.query.notes;
+  if (q.location !== 'null') {
+    patches.location = q.location;
+  } if (q.colorId !== 'null') {
+    patches.color_id = Number(q.colorId);
+  } if (q.categoryId !== 'null') {
+    patches.category_id = Number(q.categoryId);
+  } if (q.notes !== 'null') {
+    patches.notes = q.notes;
+  } if (q.staffPick !== 'null') {
+    patches.staff_pick = q.staffPick === 'true' ? true : false;
   }
 
   const inventory = await Inventory.query().patch(patches)

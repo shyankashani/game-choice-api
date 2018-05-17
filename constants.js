@@ -2,6 +2,7 @@
 
 module.exports = {
   PROPERTY_TYPES: {
+    BOOLEAN:  { type: 'boolean' },
     INTEGER:  { type: 'integer'},
     STRING:   { type: 'string'},
     URI: { type: 'string', format: 'uri' }

@@ -27,7 +27,8 @@ class Inventory extends Model {
         location: PROPERTY_TYPES.STRING,
         color_id: PROPERTY_TYPES.INTEGER,
         category_id: PROPERTY_TYPES.INTEGER,
-        notes: PROPERTY_TYPES.STRING
+        notes: PROPERTY_TYPES.STRING,
+        staff_pick: PROPERTY_TYPES.BOOLEAN
       }
     }
   }
