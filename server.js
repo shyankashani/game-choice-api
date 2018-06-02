@@ -3,6 +3,8 @@ const http = require('http').Server(app);
 const axios = require('axios');
 const parse = require('xml2js-es6-promise');
 const Promise = require('bluebird');
+const INVENTORY_SELECT_STATEMENTS = require('./constants.js').INVENTORY_SELECT_STATEMENTS;
+
 
 const { development } = require('./knexfile.js');
 const knex = require('knex')(development);
@@ -16,7 +18,8 @@ const Category = require('./models/Category');
 const Inventory = require('./models/Inventory');
 const {
   fetchStatsByBggId,
-  fetchGamesByUserName
+  fetchGamesByUserName,
+  formatInventory
 } = require('./utils.js');
 const _ = require('lodash');
 
@@ -29,16 +32,15 @@ app.use((req, res, next) => {
 });
 
 app.get('/inventory', async (req, res, next) => {
-  let inventory;
+  const inventory = await Inventory.query().select(INVENTORY_SELECT_STATEMENTS)
+      .join('games', 'games.id', 'inventory.game_id')
+      .join('colors', 'colors.id', 'inventory.color_id')
+      .join('categories', 'categories.id', 'inventory.category_id')
+      .where(raw(`to_tsvector(games.name) @@ to_tsquery('catan')`))
+      .map(formatInventory)
+      // .where(raw(`to_tsvector(games.name) @@ to_tsquery('${req.query.name}')`))
 
-  if (req.query.name) {
-    inventory = await Inventory.query().select('*')
-      .join('games', 'games.id', 'inventory.game_id')
-      .where(raw(`to_tsvector(games.name) @@ to_tsquery('${req.query.name}')`))
-  } else {
-    inventory = await Inventory.query().select('*')
-      .join('games', 'games.id', 'inventory.game_id')
-  }
+  console.log('inventory', inventory);
   res.send(inventory);
 });
 

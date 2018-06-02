@@ -32,5 +32,41 @@ module.exports = {
     console.log(`Game does not exist in database. Fetching game with id ${bggId}.`);
     const stringifiedId = bggId.toString();
     return Promise.resolve(axios.get(`http://www.boardgamegeek.com/xmlapi2/thing?id=${stringifiedId}&type=boardgame&stats=1`));
+  },
+  formatInventory: result => {
+    return {
+      id: result.inventory_id,
+      location: result.inventory_location,
+      notes: result.inventory_notes,
+      staff_pick: result.inventory_staff_pick,
+      game: {
+        id: result.game_id,
+        bgg_id: result.game_bgg_id,
+        name: result.game_name,
+        description: result.game_description,
+        year_published: result.game_year_published,
+        min_players: result.game_min_players,
+        max_players: result.game_max_players,
+        playing_time: result.game_playing_time,
+        min_play_time: result.game_min_play_time,
+        max_play_time: result.game_max_play_time,
+        min_age: result.game_min_age,
+        thumbnail: result.game_thumbnail,
+        image: result.game_image,
+        bgg_average_weight: result.game_bgg_average_weight,
+        bgg_average_rating: result.game_bgg_average_rating
+      },
+      color: {
+        id: result.color_id,
+        name: result.color_name,
+        description: result.color_description,
+        hex: result.color_hex
+      },
+      category: {
+        id: result.category_id,
+        name: result.category_name,
+        image: result.category_image
+      }
+    }
   }
 }
