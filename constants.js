@@ -16,7 +16,7 @@ module.exports = {
     'games.id as game_id',
     'games.bgg_id as game_bgg_id',
     'games.name as game_name',
-    'games.description as game_desription',
+    'games.description as game_description',
     'games.year_published as game_year_published',
     'games.min_players as game_min_players',
     'games.max_players as game_max_players',

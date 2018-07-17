@@ -36,7 +36,7 @@ app.get('/inventory', async (req, res, next) => {
       .join('games', 'games.id', 'inventory.game_id')
       .join('colors', 'colors.id', 'inventory.color_id')
       .join('categories', 'categories.id', 'inventory.category_id')
-      .where(raw(`to_tsvector(games.name) @@ to_tsquery('catan')`))
+      // .where(raw(`to_tsvector(games.name) @@ to_tsquery('catan')`))
       .map(formatInventory)
       // .where(raw(`to_tsvector(games.name) @@ to_tsquery('${req.query.name}')`))
 
